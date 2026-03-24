@@ -22,6 +22,50 @@ This repository contains step-by-step recovery procedures for various Active Dir
 | Domain Controllers | Virtualized Windows Server 2016 / 2019 / 2022 / 2025 |
 | Backup Method | Windows Server Backup (Full Server) |
 
+## Recovery Workflow
+
+```mermaid
+flowchart TD
+    A["🔍 Diagnose the Problem"] --> B{Scenario?}
+    B -->|"Deleted objects"| C["Object Recovery\n03-Object-Recovery.md"]
+    B -->|"Single domain failure"| D["Domain Recovery\n01-Domain-Recovery.md"]
+    B -->|"Forest-wide failure"| E["Forest Recovery\n02-Forest-Recovery.md"]
+    B -->|"SYSVOL corrupt"| F["SYSVOL Recovery\n04-SYSVOL-Recovery.md"]
+    B -->|"USN rollback"| G["USN Rollback Recovery\n05-USN-Rollback-Recovery.md"]
+
+    C --> H["⚠️ Safety First: Run with -WhatIf"]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+
+    H --> I["Review -WhatIf output\n— no changes made —"]
+    I --> J{Output looks correct?}
+    J -->|Yes| K["Run without -WhatIf\n(confirm each step)"]
+    J -->|No| L["Adjust parameters\nand re-run -WhatIf"]
+    L --> I
+    K --> M["✅ Verify with\nInvoke-ADRecoveryDiagnostics.ps1"]
+```
+
+## Safety First — `-WhatIf` Support
+
+All scripts that modify Active Directory support PowerShell's built-in **`-WhatIf`** switch. This lets you preview every change before it is applied — nothing is modified until you explicitly confirm.
+
+**Recommended workflow:**
+
+1. **Dry run** — Execute any script with `-WhatIf` first:
+
+   ```powershell
+   .\Reset-KrbtgtPassword.ps1 -DomainFQDN "contoso.com" -WhatIf
+   # Output: What if: Performing the operation "Reset password twice" on target "krbtgt@contoso.com".
+   ```
+
+2. **Review** — Verify the displayed actions match your intent.
+
+3. **Execute** — Run the script without `-WhatIf`. Scripts with `ConfirmImpact = 'High'` will still prompt for confirmation unless you pass `-Confirm:$false`.
+
+> **Note:** The two read-only diagnostic scripts (`Detect-USNRollback.ps1` and `Invoke-ADRecoveryDiagnostics.ps1`) do not require `-WhatIf` because they make no changes.
+
 ## Recovery Guides
 
 | Guide | Scenario |
