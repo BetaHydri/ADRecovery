@@ -23,7 +23,7 @@ When a single domain is affected, one Domain Controller is restored from backup.
 
 ### Step 1 — Restore the Domain Controller from Backup
 
-The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups of the previous day are stored on drive `I:` of the respective system. If an older backup is needed, retrieve it from your backup system first.
+The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups are typically stored on a dedicated backup volume or network share. If an older backup is needed, retrieve it from your backup system first.
 
 - [ ] **1.1** Boot the server from Windows Server installation media.
 - [ ] **1.2** Ensure the network adapter type is set to **E1000** (for virtual machines).
