@@ -1,5 +1,7 @@
 # Active Directory — USN Rollback Detection and Recovery
 
+> **Author:** Jan Tiedemann (Microsoft) | **Version:** 1.0.0 | **Last Updated:** 2026-03-24
+>
 > **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
 
 Step-by-step procedure for detecting and recovering from a USN (Update Sequence Number) rollback on a Windows Server Domain Controller.

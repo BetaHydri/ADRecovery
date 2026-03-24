@@ -1,5 +1,12 @@
 # Active Directory Recovery Documentation
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Author](https://img.shields.io/badge/author-Jan%20Tiedemann%20(Microsoft)-green)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Windows Server](https://img.shields.io/badge/Windows%20Server-2016%20|%202019%20|%202022%20|%202025-0078D4)
+
+> **Author:** Jan Tiedemann (Microsoft) | **Version:** 1.0.0 | **Last Updated:** 2026-03-24
+>
 > **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
 
 This repository contains step-by-step recovery procedures for various Active Directory disaster scenarios. All documentation uses the **Contoso** sample environment and should be adapted to your specific topology before use.
