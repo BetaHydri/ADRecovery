@@ -17,11 +17,12 @@
 .PARAMETER DelaySeconds
     Seconds to wait between the two password resets. Default: 10.
 
-    During a domain/forest recovery (single restored DC, no replication partners),
-    10 seconds is sufficient. In a live environment with multiple DCs, Microsoft
-    recommends waiting at least the maximum TGT lifetime (default: 10 hours = 36000
-    seconds) between resets to allow replication and avoid domain-wide authentication
-    disruption.
+    WARNING: The 10-second default is ONLY safe during a domain/forest recovery where a
+    single restored DC exists and there are no replication partners. In a live environment
+    with multiple DCs, Microsoft recommends waiting at least the maximum TGT lifetime
+    (default: 10 hours = 36000 seconds) between resets to allow replication and avoid
+    domain-wide authentication disruption. Using 10 seconds in production will likely
+    cause an authentication outage.
 
 .EXAMPLE
     .\Reset-KrbtgtPassword.ps1
