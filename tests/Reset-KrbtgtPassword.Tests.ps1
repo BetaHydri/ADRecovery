@@ -1,7 +1,7 @@
 BeforeAll {
     # Stub the ActiveDirectory module so the script can be dot-sourced without it installed
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory -ErrorAction SilentlyContinue)) {
-        New-Module -Name ActiveDirectory -ScriptBlock {
+        New-Module -Name ActiveDirectory -Scriptblock {
             function Get-ADDomain { }
             function Get-ADUser { }
             function Set-ADAccountPassword { }

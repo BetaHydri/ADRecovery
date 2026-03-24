@@ -1,6 +1,6 @@
 BeforeAll {
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory -ErrorAction SilentlyContinue)) {
-        New-Module -Name ActiveDirectory -ScriptBlock {
+        New-Module -Name ActiveDirectory -Scriptblock {
             function Get-ADDomain { }
             function Get-ADObject { }
             function Restore-ADObject { }
