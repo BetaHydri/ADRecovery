@@ -1,6 +1,9 @@
 BeforeAll {
-    if (-not (Get-Command -Name Uninstall-ADDSDomainController -ErrorAction SilentlyContinue)) {
-        function global:Uninstall-ADDSDomainController { }
+    if (-not (Get-Module -ListAvailable -Name ADDSDeployment -ErrorAction SilentlyContinue)) {
+        New-Module -Name ADDSDeployment -ScriptBlock {
+            function Uninstall-ADDSDomainController { }
+            Export-ModuleMember -Function *
+        } | Import-Module -Force
     }
 }
 

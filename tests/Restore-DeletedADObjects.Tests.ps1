@@ -68,38 +68,28 @@ Describe 'Restore-DeletedADObjects.ps1' {
     }
 
     Context 'ByOU' {
-        BeforeAll {
-            # First call returns the OU, second call returns children
-            $script:callCount = 0
-        }
         BeforeEach {
-            $script:callCount = 0
-            Mock Get-ADObject {
-                $script:callCount++
-                if ($script:callCount -eq 1) {
-                    # Return the OU object
+            Mock Get-ADObject -ParameterFilter { $LDAPFilter } -MockWith {
+                [PSCustomObject]@{
+                    Name                = 'Sales\0ADEL:abc123'
+                    ObjectClass         = 'organizationalUnit'
+                    DistinguishedName   = 'CN=Sales\0ADEL:abc123,CN=Deleted Objects,DC=contoso,DC=com'
+                    'msDS-LastKnownRDN' = 'Sales'
+                    lastKnownParent     = 'DC=contoso,DC=com'
+                    whenChanged         = (Get-Date).AddDays(-1)
+                }
+            }
+            Mock Get-ADObject -ParameterFilter { $SearchBase } -MockWith {
+                @(
                     [PSCustomObject]@{
-                        Name                = 'Sales\0ADEL:abc123'
-                        ObjectClass         = 'organizationalUnit'
-                        DistinguishedName   = 'CN=Sales\0ADEL:abc123,CN=Deleted Objects,DC=contoso,DC=com'
-                        'msDS-LastKnownRDN' = 'Sales'
-                        lastKnownParent     = 'DC=contoso,DC=com'
+                        Name                = 'Alice\0ADEL:def456'
+                        ObjectClass         = 'user'
+                        DistinguishedName   = 'CN=Alice\0ADEL:def456,CN=Deleted Objects,DC=contoso,DC=com'
+                        'msDS-LastKnownRDN' = 'Alice'
+                        lastKnownParent     = 'OU=Sales,DC=contoso,DC=com'
                         whenChanged         = (Get-Date).AddDays(-1)
                     }
-                }
-                else {
-                    # Return child objects
-                    @(
-                        [PSCustomObject]@{
-                            Name                = 'Alice\0ADEL:def456'
-                            ObjectClass         = 'user'
-                            DistinguishedName   = 'CN=Alice\0ADEL:def456,CN=Deleted Objects,DC=contoso,DC=com'
-                            'msDS-LastKnownRDN' = 'Alice'
-                            lastKnownParent     = 'OU=Sales,DC=contoso,DC=com'
-                            whenChanged         = (Get-Date).AddDays(-1)
-                        }
-                    )
-                }
+                )
             }
         }
 

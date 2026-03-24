@@ -65,7 +65,9 @@ Write-Host "Current krbtgt PasswordLastSet: $($krbtgt.PasswordLastSet)" -Foregro
 if ($PSCmdlet.ShouldProcess("krbtgt@$DomainFQDN", "Reset password twice")) {
     # First reset
     Write-Host "`n[1/2] Resetting krbtgt password (first time)..." -ForegroundColor Green
-    $pw1 = [System.Web.Security.Membership]::GeneratePassword(64, 10)
+    $bytes1 = [byte[]]::new(48)
+    [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes1)
+    $pw1 = [Convert]::ToBase64String($bytes1)
     Set-ADAccountPassword -Identity 'krbtgt' -Server $DomainFQDN -Reset -NewPassword (ConvertTo-SecureString $pw1 -AsPlainText -Force)
     Write-Host "      First reset completed." -ForegroundColor Green
 
@@ -75,7 +77,9 @@ if ($PSCmdlet.ShouldProcess("krbtgt@$DomainFQDN", "Reset password twice")) {
 
     # Second reset
     Write-Host "[2/2] Resetting krbtgt password (second time)..." -ForegroundColor Green
-    $pw2 = [System.Web.Security.Membership]::GeneratePassword(64, 10)
+    $bytes2 = [byte[]]::new(48)
+    [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes2)
+    $pw2 = [Convert]::ToBase64String($bytes2)
     Set-ADAccountPassword -Identity 'krbtgt' -Server $DomainFQDN -Reset -NewPassword (ConvertTo-SecureString $pw2 -AsPlainText -Force)
     Write-Host "      Second reset completed." -ForegroundColor Green
 

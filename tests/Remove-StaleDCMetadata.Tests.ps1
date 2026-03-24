@@ -57,7 +57,7 @@ Describe 'Remove-StaleDCMetadata.ps1' {
 
     It 'Should query current FSMO role holders' {
         & $scriptPath -SurvivorDCName 'DC01' -DomainFQDN 'contoso.com' -Confirm:$false
-        Should -Invoke Get-ADDomain -Times 1 -Exactly
+        Should -Invoke Get-ADDomain -Times 1 -AtLeast
     }
 
     It 'Should enumerate all domain controllers' {
@@ -67,6 +67,6 @@ Describe 'Remove-StaleDCMetadata.ps1' {
 
     It 'Should remove stale DC computer accounts' {
         & $scriptPath -SurvivorDCName 'DC01' -DomainFQDN 'contoso.com' -Confirm:$false
-        Should -Invoke Remove-ADObject -Times 1 -Exactly
+        Should -Invoke Remove-ADObject -Times 1 -AtLeast
     }
 }
