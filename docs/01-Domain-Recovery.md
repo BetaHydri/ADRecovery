@@ -1,5 +1,7 @@
 # Active Directory — Single Domain Recovery
 
+> **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
+
 Step-by-step procedure for recovering a single domain within the Contoso Active Directory forest.
 
 ## Overview
@@ -27,7 +29,7 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups of
 - [ ] **1.2** Ensure the network adapter type is set to **E1000** (for virtual machines).
 - [ ] **1.3** On the language/keyboard page, click **"Repair your computer"** (do **not** click "Install now").
 - [ ] **1.4** Select **"Troubleshoot"** → **"System Image Recovery"**.
-- [ ] **1.5** If prompted, select **"Windows Server 2016"** (or the matching OS version).
+- [ ] **1.5** If prompted, select the matching OS version (e.g., **Windows Server 2022** or **Windows Server 2025**).
 - [ ] **1.6** Choose the desired backup:
   - Accept the most recent backup (default), **or**
   - Select **"Select a System image"** to pick a specific backup.
@@ -64,11 +66,17 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups of
 
 > Perform this step only if the recovery is due to a security incident or suspected compromise.
 
+> **Why reset krbtgt?** The `krbtgt` account is used to encrypt all Kerberos tickets in the domain. If an attacker has obtained its password hash, they can forge "Golden Tickets" granting unlimited access. Resetting it invalidates all existing tickets.
+
 - [ ] **3.1** Reset the **krbtgt** account password:
   ```cmd
   net user krbtgt <NewPassword> /domain
   ```
-- [ ] **3.2** Reset the krbtgt password a **second time** (to invalidate both password hashes).
+- [ ] **3.2** Reset the krbtgt password a **second time** (AD keeps the current and previous hash — resetting twice ensures both are replaced):
+  ```cmd
+  net user krbtgt <AnotherNewPassword> /domain
+  ```
+- [ ] **3.3** If **gMSA (Group Managed Service Accounts)** are in use, plan to re-create them — an attacker with admin access may have retrieved the KDS root key, enabling a [Golden gMSA attack](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
 ---
 
@@ -91,6 +99,12 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups of
 - [ ] **4.6** Open **Event Viewer** → **Applications and Services Logs → DFS Replication**:
   - Verify **Event ID 4602** is logged (SYSVOL initialization).
   - **Event ID 5008** (no replication partner) is expected at this point.
+- [ ] **4.7** If this DC holds **FSMO roles**, add the following registry value to prevent the DC from waiting for initial replication before advertising:
+  ```
+  HKLM\System\CurrentControlSet\Services\NTDS\Parameters
+  Value: "Repl Perform Initial Synchronizations" (REG_DWORD) = 0
+  ```
+  > **Important:** After the forest is fully recovered and replication is healthy, set this value back to **1** or delete it.
 
 ---
 
@@ -123,14 +137,29 @@ All non-restored DCs must be removed from Active Directory.
   - Forward lookup zone
   - Reverse lookup zone
 - [ ] **5.9** Remove deleted DCs from the **Name Servers** tab of all DNS zones.
+- [ ] **5.10** Speed up DNS SRV record removal for each deleted DC:
+  ```cmd
+  nltest /dsderegdns:<DeletedDC.contoso.com>
+  ```
 
 ---
 
 ### Step 6 — Reset the RID Pool
 
+> **Why?** Every security principal (user, group, computer) gets a unique RID. After restoring from backup, the DC may re-issue RIDs that were already assigned before the backup was taken, creating duplicate SIDs. Raising the pool ceiling and invalidating the local cache prevents this.
+
 - [ ] **6.1** Open the properties of `CN=RID Manager$,CN=System,DC=corp,DC=contoso,DC=com`.
-  - (Enable **Advanced View** and **Users, Contacts, Groups and Computers as containers**.)
-- [ ] **6.2** On the **Attribute Editor** tab, edit `rIDAvailablePool` — increase the upper 32 bits to raise the pool.
+  - In **Active Directory Users and Computers**, enable **View** → **Advanced Features** and **Users, Contacts, Groups and Computers as containers**.
+  - Navigate to **corp.contoso.com** → **System** → **RID Manager$** → right-click → **Properties**.
+- [ ] **6.2** On the **Attribute Editor** tab, edit `rIDAvailablePool`:
+  - The value is a 64-bit number. Increase the **upper 32 bits** by at least **100,000** (Microsoft recommendation) to avoid overlap with previously issued RIDs.
+  - You can calculate the new value in PowerShell:
+    ```powershell
+    $current = 4611686014132422708  # replace with your actual value
+    $increment = 100000 * [math]::Pow(2, 32)
+    $new = $current + $increment
+    Write-Host "New rIDAvailablePool value: $new"
+    ```
 - [ ] **6.3** Invalidate the current DC's RID pool:
   ```powershell
   $Domain = New-Object System.DirectoryServices.DirectoryEntry
@@ -147,8 +176,12 @@ All non-restored DCs must be removed from Active Directory.
 
 ### Step 7 — Reset Computer Account Password
 
-- [ ] **7.1** Run the following command **twice** in an administrative PowerShell console:
+> **Why twice?** The DC's machine account password secures the trust relationship (secure channel) between the DC and the domain. After a restore, the password stored locally may not match what AD expects. AD keeps both the current and previous password — resetting twice ensures both slots are updated.
+
+- [ ] **7.1** Open an administrative PowerShell console.
+- [ ] **7.2** Run the reset command **two times**, waiting a few seconds between each:
   ```powershell
+  Reset-ComputerMachinePassword
   Reset-ComputerMachinePassword
   ```
 
@@ -171,26 +204,38 @@ All non-restored DCs must be removed from Active Directory.
 
 ### Step 9 — Temporarily Remove Global Catalog
 
+> **Why?** The Global Catalog on the restored DC contains stale partial replicas from other domains (as of the backup time). Removing the GC flag forces a full rebuild from replication after reconnection, ensuring data consistency across the forest.
+
 - [ ] **9.1** Open **Active Directory Sites and Services**.
-- [ ] **9.2** Navigate to the restored DC's site → Servers → DC01 → **NTDS Settings**.
-- [ ] **9.3** Open Properties and **uncheck** "Global Catalog".
+- [ ] **9.2** Navigate to: **Sites** → *your site* → **Servers** → **DC01** → **NTDS Settings**.
+- [ ] **9.3** Right-click **NTDS Settings** → **Properties** → **uncheck** "Global Catalog" → **OK**.
+
+> The GC will be re-enabled in Step 11.5 after replication is confirmed healthy.
 
 ---
 
 ### Step 10 — Configure Time Synchronization
 
-- [ ] **10.1** Verify the following registry values under:
+> **Why?** Kerberos authentication fails if the clock difference between a DC and a client exceeds 5 minutes (default policy). After a restore, the DC's clock is at the backup timestamp. The `MaxNegPhaseCorrection` / `MaxPosPhaseCorrection` values (in seconds) control how large a time jump the W32Time service will accept — 172800 seconds = 48 hours.
+
+- [ ] **10.1** Open **Registry Editor** (`regedit`) and verify the following values:
   ```
   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Config
   ```
   - `MaxNegPhaseCorrection` = **172800** (or less)
   - `MaxPosPhaseCorrection` = **172800** (or less)
-- [ ] **10.2** Check the time source type under:
+- [ ] **10.2** Check and set the time source type:
   ```
   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters\Type
   ```
-  - On the **PDC Emulator** of the forest root domain (`contoso.com`): set to **NTP**.
-  - On all other DCs: set to **NT5DS**.
+  - On the **PDC Emulator** of the forest root domain (`contoso.com`): set to **NTP** and configure an external NTP server (e.g., `time.windows.com`).
+  - On all other DCs: set to **NT5DS** (synchronizes time from the domain hierarchy).
+- [ ] **10.3** Restart the Windows Time service to apply changes:
+  ```cmd
+  net stop w32time
+  net start w32time
+  w32tm /resync
+  ```
 
 > **The Domain Controller must remain disconnected from the network until all steps above are complete.**
 
@@ -219,7 +264,13 @@ All non-restored DCs must be removed from Active Directory.
 ### Step 12 — Rebuild Remaining Domain Controllers
 
 - [ ] **12.1** Install new Windows Server instances.
-- [ ] **12.2** Promote each server to Domain Controller using `dcpromo` or **Server Manager**.
+- [ ] **12.2** Promote each server to Domain Controller using **Server Manager** or PowerShell:
+  ```powershell
+  Install-ADDSDomainController -DomainName "corp.contoso.com" -Credential (Get-Credential)
+  ```
+  > **Note:** `dcpromo` was removed in Windows Server 2012 and later. Use `Install-ADDSDomainController` or Server Manager.
+  >
+  > On **Windows Server 2022/2025**, you can alternatively use **virtualized DC cloning** to rapidly deploy additional DCs. See [Microsoft: Virtualized Domain Controller Deployment](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/virtualized-domain-controller-deployment-and-configuration).
 - [ ] **12.3** Restore original DNS server configuration on the first DC's network adapter.
 
 ---
