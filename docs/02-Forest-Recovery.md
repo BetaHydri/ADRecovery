@@ -67,6 +67,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 
 ### Step 2.3 — Reset Passwords (if Security Incident)
 
+> **Script:** [`Reset-KrbtgtPassword.ps1`](../scripts/Reset-KrbtgtPassword.ps1)
+
 - [ ] **2.3.1** Reset `krbtgt` password:
   ```cmd
   net user krbtgt <NewPassword> /domain
@@ -75,6 +77,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 - [ ] **2.3.3** If **gMSA (Group Managed Service Accounts)** are in use, plan to re-create them — an attacker may have retrieved the KDS root key, enabling a [Golden gMSA attack](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
 ### Step 2.4 — Authoritative SYSVOL Restore (DFS-R)
+
+> **Script:** [`Set-AuthoritativeSYSVOLRestore.ps1`](../scripts/Set-AuthoritativeSYSVOLRestore.ps1)
 
 - [ ] **2.4.1** In **AD Users and Computers**, enable **Advanced Features** and **containers view**.
 - [ ] **2.4.2** Navigate to:
@@ -100,6 +104,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
   > Reset this value to **1** (or delete the entry) after the forest is fully recovered.
 
 ### Step 2.5 — Remove Metadata of Other Forest Root DCs
+
+> **Script:** [`Remove-StaleDCMetadata.ps1`](../scripts/Remove-StaleDCMetadata.ps1)
 
 - [ ] **2.5.1** Run:
   ```cmd
@@ -127,6 +133,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 
 ### Step 2.6 — Reset the RID Pool
 
+> **Script:** [`Reset-RIDPool.ps1`](../scripts/Reset-RIDPool.ps1)
+
 - [ ] **2.6.1** Open properties of `CN=RID Manager$,CN=System,DC=contoso,DC=com` (Advanced View).
 - [ ] **2.6.2** Edit `rIDAvailablePool` — raise the upper 32-bit value by at least **100,000** (Microsoft recommendation).
 - [ ] **2.6.3** Invalidate the local RID pool:
@@ -140,6 +148,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 - [ ] **2.6.4** Create a test user → initial error expected (new pool allocation) → delete test user.
 
 ### Step 2.7 — Reset Computer Account Password
+
+> **Script:** [`Reset-DCMachineAccountPassword.ps1`](../scripts/Reset-DCMachineAccountPassword.ps1)
 
 - [ ] **2.7.1** Run **twice**:
   ```powershell
@@ -162,6 +172,8 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 - [ ] **2.9.1** In **AD Sites and Services** → DC-ROOT01 → **NTDS Settings** → uncheck **"Global Catalog"**.
 
 ### Step 2.10 — Configure Time Synchronization
+
+> **Script:** [`Set-TimeSynchronization.ps1`](../scripts/Set-TimeSynchronization.ps1)
 
 - [ ] **2.10.1** Verify registry:
   ```
@@ -208,6 +220,8 @@ The procedure below is for one child domain (e.g., `DC-CHILD01.corp.contoso.com`
 
 ### Step 3.3 — Reset Passwords (if Security Incident)
 
+> **Script:** [`Reset-KrbtgtPassword.ps1`](../scripts/Reset-KrbtgtPassword.ps1)
+
 > Skip this step if the recovery is **not** related to a security breach.
 
 - [ ] **3.3.1** Reset the child domain's `krbtgt` password:
@@ -224,6 +238,8 @@ The procedure below is for one child domain (e.g., `DC-CHILD01.corp.contoso.com`
 - [ ] **3.3.3** If **gMSA (Group Managed Service Accounts)** are in use in this child domain, plan to re-create them — see [Golden gMSA attack recovery](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
 ### Step 3.4 — Authoritative SYSVOL Restore (DFS-R)
+
+> **Script:** [`Set-AuthoritativeSYSVOLRestore.ps1`](../scripts/Set-AuthoritativeSYSVOLRestore.ps1)
 
 - [ ] **3.4.1** In **Active Directory Users and Computers**, enable **View** → **Advanced Features** and **Users, Contacts, Groups and Computers as containers**.
 - [ ] **3.4.2** Navigate to the child DC's SYSVOL subscription object:
@@ -253,6 +269,8 @@ The procedure below is for one child domain (e.g., `DC-CHILD01.corp.contoso.com`
   > Reset to **1** after forest recovery is complete.
 
 ### Step 3.5 — Remove Metadata of Non-Restored Child Domain DCs
+
+> **Script:** [`Remove-StaleDCMetadata.ps1`](../scripts/Remove-StaleDCMetadata.ps1)
 
 - [ ] **3.5.1** Identify current FSMO role holders in the child domain:
   ```cmd
@@ -292,6 +310,8 @@ If `netdom query fsmo` still shows a deleted DC as a role holder:
 
 ### Step 3.8 — Reset the RID Pool for the Child Domain
 
+> **Script:** [`Reset-RIDPool.ps1`](../scripts/Reset-RIDPool.ps1)
+
 > **Why?** After a restore, the DC may try to assign RIDs (Relative Identifiers) that were already used before the backup. Raising the pool and invalidating the local cache prevents duplicate SID creation.
 
 - [ ] **3.8.1** In **Active Directory Users and Computers** (with **Advanced Features** enabled), navigate to:
@@ -327,6 +347,8 @@ If `netdom query fsmo` still shows a deleted DC as a role holder:
   - Delete the test user afterwards.
 
 ### Step 3.9 — Reset the Computer Account Password (Twice)
+
+> **Script:** [`Reset-DCMachineAccountPassword.ps1`](../scripts/Reset-DCMachineAccountPassword.ps1)
 
 > **Why twice?** The DC's machine account password is used for secure channel communication. After a restore, the password stored in AD may not match the local password. Resetting it twice ensures both the current and previous password slots are updated, preventing Kerberos authentication issues.
 
@@ -372,6 +394,8 @@ If `netdom query fsmo` still shows a deleted DC as a role holder:
 
 ### Step 3.12 — Configure Time Synchronization
 
+> **Script:** [`Set-TimeSynchronization.ps1`](../scripts/Set-TimeSynchronization.ps1)
+
 > **Why?** Kerberos authentication fails if the time difference between a DC and a client exceeds 5 minutes. After a restore, the DC's clock may be at the backup timestamp instead of the current time.
 
 - [ ] **3.12.1** Open Registry Editor and verify time correction limits:
@@ -400,6 +424,8 @@ If `netdom query fsmo` still shows a deleted DC as a role holder:
 ---
 
 ## Phase 4 — Reconnect and Verify the Forest
+
+> **Script:** [`Invoke-ADRecoveryDiagnostics.ps1`](../scripts/Invoke-ADRecoveryDiagnostics.ps1)
 
 After all first DCs per domain are restored and old DCs are disconnected:
 

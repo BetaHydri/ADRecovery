@@ -66,6 +66,8 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups ar
 
 ### Step 3 — Reset Passwords (if Security Incident)
 
+> **Script:** [`Reset-KrbtgtPassword.ps1`](../scripts/Reset-KrbtgtPassword.ps1) — automates steps 3.1 and 3.2 (double krbtgt reset).
+
 > Perform this step only if the recovery is due to a security incident or suspected compromise.
 
 > **Why reset krbtgt?** The `krbtgt` account is used to encrypt all Kerberos tickets in the domain. If an attacker has obtained its password hash, they can forge "Golden Tickets" granting unlimited access. Resetting it invalidates all existing tickets.
@@ -83,6 +85,8 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups ar
 ---
 
 ### Step 4 — Authoritative SYSVOL Restore (DFS-R)
+
+> **Script:** [`Set-AuthoritativeSYSVOLRestore.ps1`](../scripts/Set-AuthoritativeSYSVOLRestore.ps1) — automates steps 4.1–4.5 (set authoritative flag and restart DFS-R).
 
 - [ ] **4.1** Open **Active Directory Users and Computers**.
 - [ ] **4.2** Enable **"Advanced Features"** and **"Users, Contacts, Groups and Computers as containers"** under the **View** menu.
@@ -111,6 +115,8 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups ar
 ---
 
 ### Step 5 — Remove Metadata of Other Domain Controllers
+
+> **Script:** [`Remove-StaleDCMetadata.ps1`](../scripts/Remove-StaleDCMetadata.ps1) — automates steps 5.1–5.10 (metadata cleanup, FSMO seizure, DNS deregistration).
 
 All non-restored DCs must be removed from Active Directory.
 
@@ -148,6 +154,8 @@ All non-restored DCs must be removed from Active Directory.
 
 ### Step 6 — Reset the RID Pool
 
+> **Script:** [`Reset-RIDPool.ps1`](../scripts/Reset-RIDPool.ps1) — automates steps 6.1–6.3 (pool ceiling increase and cache invalidation).
+
 > **Why?** Every security principal (user, group, computer) gets a unique RID. After restoring from backup, the DC may re-issue RIDs that were already assigned before the backup was taken, creating duplicate SIDs. Raising the pool ceiling and invalidating the local cache prevents this.
 
 - [ ] **6.1** Open the properties of `CN=RID Manager$,CN=System,DC=corp,DC=contoso,DC=com`.
@@ -177,6 +185,8 @@ All non-restored DCs must be removed from Active Directory.
 ---
 
 ### Step 7 — Reset Computer Account Password
+
+> **Script:** [`Reset-DCMachineAccountPassword.ps1`](../scripts/Reset-DCMachineAccountPassword.ps1) — automates steps 7.1–7.2 (double machine account reset).
 
 > **Why twice?** The DC's machine account password secures the trust relationship (secure channel) between the DC and the domain. After a restore, the password stored locally may not match what AD expects. AD keeps both the current and previous password — resetting twice ensures both slots are updated.
 
@@ -218,6 +228,8 @@ All non-restored DCs must be removed from Active Directory.
 
 ### Step 10 — Configure Time Synchronization
 
+> **Script:** [`Set-TimeSynchronization.ps1`](../scripts/Set-TimeSynchronization.ps1) — automates steps 10.1–10.3 (registry settings, time source, service restart).
+
 > **Why?** Kerberos authentication fails if the clock difference between a DC and a client exceeds 5 minutes (default policy). After a restore, the DC's clock is at the backup timestamp. The `MaxNegPhaseCorrection` / `MaxPosPhaseCorrection` values (in seconds) control how large a time jump the W32Time service will accept — 172800 seconds = 48 hours.
 
 - [ ] **10.1** Open **Registry Editor** (`regedit`) and verify the following values:
@@ -244,6 +256,8 @@ All non-restored DCs must be removed from Active Directory.
 ---
 
 ### Step 11 — Reconnect and Verify
+
+> **Script:** [`Invoke-ADRecoveryDiagnostics.ps1`](../scripts/Invoke-ADRecoveryDiagnostics.ps1) — automates step 11.4 (replication, DNS, and trust diagnostics).
 
 - [ ] **11.1** Connect the restored DC to the network.
 - [ ] **11.2** Verify DNS configuration (delegations, forwarders, root hints).

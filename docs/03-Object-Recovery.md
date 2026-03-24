@@ -48,6 +48,8 @@ All examples use the domain `contoso.com`. Adjust domain names and distinguished
 
 ## Method 2 — PowerShell
 
+> **Script:** [`Restore-DeletedADObjects.ps1`](../scripts/Restore-DeletedADObjects.ps1) — automates single-user, SAM account, and OU recovery from the Recycle Bin.
+
 ### Recover a Single User
 
 - [ ] **2.1** Find and restore a deleted user by display name:

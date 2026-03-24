@@ -55,6 +55,8 @@ When a USN rollback happens, modifications on the affected DC do not replicate t
 
 ## Step-by-Step Detection
 
+> **Script:** [`Detect-USNRollback.ps1`](../scripts/Detect-USNRollback.ps1) — automates all three detection checks below.
+
 ### Step 1 — Check for Event ID 2095
 
 - [ ] **1.1** On the suspected DC, open **Event Viewer** → **Applications and Services Logs** → **Directory Service**.
@@ -90,6 +92,8 @@ There are **three approaches** to recover from a USN rollback. Choose the most a
 ---
 
 ### Option A — Forcefully Demote and Re-Promote the DC (Recommended)
+
+> **Script:** [`Repair-USNRollback.ps1`](../scripts/Repair-USNRollback.ps1) — automates the force-demotion step.
 
 This is the **safest and most common** approach.
 

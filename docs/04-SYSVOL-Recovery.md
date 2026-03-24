@@ -35,6 +35,8 @@ During an authoritative SYSVOL restore, the DFS-R service is stopped on all DCs,
 
 ### Step 2 — Mark the Authoritative DC
 
+> **Script:** [`Set-AuthoritativeSYSVOLRestore.ps1`](../scripts/Set-AuthoritativeSYSVOLRestore.ps1) — automates steps 2.1–2.4.
+
 - [ ] **2.1** Open **Active Directory Users and Computers** on the authoritative DC.
 - [ ] **2.2** Enable **"Advanced Features"** and **"Users, Contacts, Groups and Computers as containers"** under the **View** menu.
 - [ ] **2.3** Navigate to the authoritative DC's DFS-R subscription object:
@@ -56,6 +58,8 @@ During an authoritative SYSVOL restore, the DFS-R service is stopped on all DCs,
 ---
 
 ### Step 3 — Mark All Other DCs as Non-Authoritative
+
+> **Script:** [`Set-NonAuthoritativeSYSVOL.ps1`](../scripts/Set-NonAuthoritativeSYSVOL.ps1) — automates steps 3, 5, 7, and 9.
 
 For **each** other Domain Controller in the domain:
 
