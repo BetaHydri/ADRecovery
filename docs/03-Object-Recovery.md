@@ -1,5 +1,7 @@
 # Active Directory — Object Recovery
 
+> **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
+
 Step-by-step procedure for recovering accidentally deleted Active Directory objects (users, groups, OUs) in the Contoso environment.
 
 ## Overview

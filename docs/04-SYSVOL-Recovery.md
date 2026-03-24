@@ -1,5 +1,7 @@
 # Active Directory — Authoritative SYSVOL Restore (DFS-R)
 
+> **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
+
 Step-by-step procedure for performing an authoritative DFS-R SYSVOL synchronization when SYSVOL is corrupt, inconsistent, or missing on Domain Controllers.
 
 ## Overview

@@ -1,5 +1,7 @@
 # Active Directory Recovery Documentation
 
+> **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
+
 This repository contains step-by-step recovery procedures for various Active Directory disaster scenarios. All documentation uses the **Contoso** sample environment and should be adapted to your specific topology before use.
 
 ## Sample Environment
@@ -8,9 +10,9 @@ This repository contains step-by-step recovery procedures for various Active Dir
 |---|---|
 | Forest Root Domain | `contoso.com` |
 | Child Domain (example) | `corp.contoso.com` |
-| Forest Functional Level | Windows Server 2016 |
-| Domain Functional Level | Windows Server 2016 |
-| Domain Controllers | Virtualized Windows Server 2016 |
+| Forest Functional Level | Windows Server 2016 (or higher) |
+| Domain Functional Level | Windows Server 2016 (or higher) |
+| Domain Controllers | Virtualized Windows Server 2016 / 2019 / 2022 / 2025 |
 | Backup Method | Windows Server Backup (Full Server) |
 
 ## Recovery Guides

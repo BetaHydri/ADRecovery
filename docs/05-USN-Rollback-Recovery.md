@@ -1,5 +1,7 @@
 # Active Directory — USN Rollback Detection and Recovery
 
+> **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
+
 Step-by-step procedure for detecting and recovering from a USN (Update Sequence Number) rollback on a Windows Server Domain Controller.
 
 ## Overview
@@ -93,7 +95,7 @@ This is the **safest and most common** approach.
   ```powershell
   Uninstall-ADDSDomainController -ForceRemoval -DemoteOperationMasterRole
   ```
-  Or use `dcpromo /forceremoval` on older systems.
+  > **Note:** On Windows Server 2008/2008 R2, `dcpromo /forceremoval` was used instead. This is not available on Server 2012 and later.
 
 - [ ] **A.2** Shut down the demoted server.
 
