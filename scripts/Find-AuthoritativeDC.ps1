@@ -95,13 +95,13 @@ $results = foreach ($dc in $allDCs) {
     $sysvolReachable = Test-Path -Path $sysvolPath -ErrorAction SilentlyContinue
 
     # 4. SYSVOL content stats
-    $fileCount   = 0
+    $fileCount = 0
     $totalSizeKB = 0
-    $newestFile  = $null
+    $newestFile = $null
     if ($sysvolReachable) {
         try {
             $items = Get-ChildItem -Path $sysvolPath -Recurse -File -ErrorAction Stop
-            $fileCount   = $items.Count
+            $fileCount = $items.Count
             $totalSizeKB = [math]::Round(($items | Measure-Object -Property Length -Sum).Sum / 1KB, 2)
             if ($items.Count -gt 0) {
                 $newestFile = ($items | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
@@ -114,9 +114,9 @@ $results = foreach ($dc in $allDCs) {
 
     # 5. Score calculation
     $score = 0
-    if ($isPDC)                        { $score += 3 }
-    if ($dfsrStatus -eq 'Running')     { $score += 2 }
-    if ($sysvolReachable)              { $score += 1 }
+    if ($isPDC) { $score += 3 }
+    if ($dfsrStatus -eq 'Running') { $score += 2 }
+    if ($sysvolReachable) { $score += 1 }
     # Bonus for content completeness — normalized later
     $score += [math]::Min($fileCount / 10, 2)   # up to 2 points
 
@@ -135,7 +135,7 @@ $results = foreach ($dc in $allDCs) {
 # --- Display results ---
 Write-Host "`n=== Results ===" -ForegroundColor Cyan
 $results | Sort-Object Score -Descending |
-    Format-Table DC, IsPDCEmulator, DFSRService, SYSVOLReachable, PolicyFiles, TotalSizeKB, NewestFile, Score -AutoSize
+Format-Table DC, IsPDCEmulator, DFSRService, SYSVOLReachable, PolicyFiles, TotalSizeKB, NewestFile, Score -AutoSize
 
 # --- Recommendation ---
 $recommended = $results | Sort-Object Score -Descending | Select-Object -First 1
