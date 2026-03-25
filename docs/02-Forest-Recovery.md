@@ -76,7 +76,11 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
 - [ ] **2.3.2** Reset `krbtgt` password a **second time**.
 
 > [!WARNING]
-> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory. After the reset:
+> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory.
+>
+> **Script:** [`Find-LinuxKerberosKeytabs.ps1`](../scripts/Find-LinuxKerberosKeytabs.ps1) — run this **before** the krbtgt reset to identify affected systems.
+>
+> After the reset:
 > - [ ] Identify all Linux/Unix hosts using Kerberos keytab files (e.g., `/etc/krb5.keytab`) for authentication.
 > - [ ] Regenerate keytabs on all affected Linux/Unix systems (e.g., via `ktpass`, `msktutil`, or `adcli`).
 > - [ ] Restart Kerberos-dependent services (e.g., `sshd`, Apache with `mod_auth_gssapi`, NFS, CIFS mounts, Hadoop, etc.).
@@ -246,7 +250,11 @@ The procedure below is for one child domain (e.g., `DC-CHILD01.corp.contoso.com`
 > **Why twice?** Active Directory keeps the current and previous krbtgt password hashes. Resetting twice ensures both hashes are replaced, fully invalidating any stolen tickets.
 
 > [!WARNING]
-> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory. After the reset:
+> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory.
+>
+> **Script:** [`Find-LinuxKerberosKeytabs.ps1`](../scripts/Find-LinuxKerberosKeytabs.ps1) — run this **before** the krbtgt reset to identify affected systems.
+>
+> After the reset:
 > - [ ] Identify all Linux/Unix hosts using Kerberos keytab files (e.g., `/etc/krb5.keytab`) for authentication.
 > - [ ] Regenerate keytabs on all affected Linux/Unix systems (e.g., via `ktpass`, `msktutil`, or `adcli`).
 > - [ ] Restart Kerberos-dependent services (e.g., `sshd`, Apache with `mod_auth_gssapi`, NFS, CIFS mounts, Hadoop, etc.).
