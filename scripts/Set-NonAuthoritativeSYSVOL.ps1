@@ -59,7 +59,7 @@ Write-Host "Authoritative DC : $AuthoritativeDCName"
 Write-Host "Domain            : $DomainDN`n"
 
 # Get all DCs in the domain except the authoritative one
-$allDCs = Get-ADDomainController -Filter * | Where-Object { $_.Name -ne $AuthoritativeDCName }
+$allDCs = @(Get-ADDomainController -Filter * | Where-Object { $_.Name -ne $AuthoritativeDCName })
 
 if ($allDCs.Count -eq 0) {
     Write-Host "No other Domain Controllers found. Nothing to do." -ForegroundColor Yellow

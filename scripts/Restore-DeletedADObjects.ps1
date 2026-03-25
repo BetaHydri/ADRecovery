@@ -106,9 +106,9 @@ switch ($PSCmdlet.ParameterSetName) {
             # Step 2: Restore child objects
             $restoredOUDN = "OU=$OUName,$($ouObject.lastKnownParent)"
             Write-Host "`nSearching for child objects with lastKnownParent = $restoredOUDN..."
-            $children = Get-ADObject -SearchBase $deletedObjectsDN `
+            $children = @(Get-ADObject -SearchBase $deletedObjectsDN `
                 -Filter { lastKnownParent -eq $restoredOUDN } `
-                -IncludeDeletedObjects -Properties lastKnownParent, msDS-LastKnownRDN, whenChanged
+                -IncludeDeletedObjects -Properties lastKnownParent, msDS-LastKnownRDN, whenChanged)
 
             if ($children) {
                 Write-Host "Found $($children.Count) child object(s):" -ForegroundColor Yellow

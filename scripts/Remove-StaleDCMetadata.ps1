@@ -66,7 +66,7 @@ Write-Host ""
 
 # --- 2. Get all DCs, identify stale ones ---
 $allDCs = Get-ADDomainController -Filter * -Server $SurvivorDCName
-$staleDCs = $allDCs | Where-Object { $_.Name -ne $SurvivorDCName }
+$staleDCs = @($allDCs | Where-Object { $_.Name -ne $SurvivorDCName })
 
 if ($staleDCs.Count -eq 0) {
     Write-Host "No other Domain Controllers found. Nothing to remove." -ForegroundColor Green

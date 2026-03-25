@@ -35,10 +35,10 @@ $rollbackDetected = $false
 # --- 1. Check for Event ID 2095 ---
 Write-Host "--- Check 1: Event ID 2095 (Directory Services log) ---" -ForegroundColor Yellow
 try {
-    $events = Get-WinEvent -FilterHashtable @{
+    $events = @(Get-WinEvent -FilterHashtable @{
         LogName   = 'Directory Service'
         Id        = 2095
-    } -MaxEvents 5 -ErrorAction SilentlyContinue
+    } -MaxEvents 5 -ErrorAction SilentlyContinue)
 
     if ($events) {
         $rollbackDetected = $true
