@@ -28,7 +28,7 @@
     .\Repair-USNRollback.ps1 -Method ForceDemote -SkipRePromote
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: Administrative privileges, RSAT AD DS tools
 #>

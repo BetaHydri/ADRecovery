@@ -28,7 +28,7 @@
     .\Invoke-ADRecoveryDiagnostics.ps1 -DomainFQDN "contoso.com" -VerifyTrust "corp.contoso.com"
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: Run on a Domain Controller, Domain Admin privileges
 #>

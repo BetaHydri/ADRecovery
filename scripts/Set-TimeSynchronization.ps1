@@ -34,7 +34,7 @@
     .\Set-TimeSynchronization.ps1 -IsForestRootPDC -NTPServer "time.windows.com"
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: Administrative privileges
 #>

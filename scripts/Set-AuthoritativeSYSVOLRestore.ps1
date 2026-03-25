@@ -25,7 +25,7 @@
     .\Set-AuthoritativeSYSVOLRestore.ps1 -DCName "DC-ROOT01" -DomainDN "DC=contoso,DC=com"
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: ActiveDirectory module, Domain Admin privileges
 #>

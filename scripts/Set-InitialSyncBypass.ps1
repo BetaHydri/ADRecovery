@@ -27,7 +27,7 @@
     .\Set-InitialSyncBypass.ps1 -Enable
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: Administrative privileges
 #>

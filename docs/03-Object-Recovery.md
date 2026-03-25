@@ -1,6 +1,6 @@
 # Active Directory — Object Recovery
 
-> **Author:** Jan Tiedemann (Microsoft) | **Version:** 1.0.0 | **Last Updated:** 2026-03-24
+> **Author:** Jan Tiedemann | **Version:** 1.0.0 | **Last Updated:** 2026-03-24
 >
 > **Applies to:** Windows Server 2025, Windows Server 2022, Windows Server 2019, Windows Server 2016
 

@@ -25,7 +25,7 @@
     .\Remove-StaleDCMetadata.ps1 -SurvivorDCName "DC01"
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: ActiveDirectory module, Domain Admin privileges
 #>

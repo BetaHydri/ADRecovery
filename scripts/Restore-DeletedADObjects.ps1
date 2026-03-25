@@ -38,7 +38,7 @@
     .\Restore-DeletedADObjects.ps1 -OUName "Sales"
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: ActiveDirectory module, AD Recycle Bin enabled, Domain Admin privileges
 #>

@@ -28,7 +28,7 @@
     .\Reset-RIDPool.ps1 -Increment 200000
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: ActiveDirectory module, Domain Admin privileges
 #>

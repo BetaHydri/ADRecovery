@@ -15,7 +15,7 @@
     .\Detect-USNRollback.ps1
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: Run on the suspected DC, administrative privileges
 #>

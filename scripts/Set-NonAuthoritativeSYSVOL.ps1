@@ -31,7 +31,7 @@
     .\Set-NonAuthoritativeSYSVOL.ps1 -AuthoritativeDCName "DC01" -ReEnable
 
 .NOTES
-    Author : Jan Tiedemann (Microsoft)
+    Author : Jan Tiedemann
     Version: 1.0.0
     Requires: ActiveDirectory module, Domain Admin privileges
 #>
