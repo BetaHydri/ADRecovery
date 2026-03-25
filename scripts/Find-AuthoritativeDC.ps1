@@ -65,7 +65,7 @@ Write-Host "PDC Emulator : $pdcEmulator"
 Write-Host "Time         : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n"
 
 # --- Enumerate all DCs ---
-$allDCs = Get-ADDomainController -Filter * | Select-Object -ExpandProperty HostName
+$allDCs = @(Get-ADDomainController -Filter * | Select-Object -ExpandProperty HostName)
 Write-Host "Domain Controllers found: $($allDCs.Count)" -ForegroundColor Yellow
 $allDCs | ForEach-Object { Write-Host "  $_" }
 Write-Host ""
@@ -100,7 +100,7 @@ $results = foreach ($dc in $allDCs) {
     $newestFile = $null
     if ($sysvolReachable) {
         try {
-            $items = Get-ChildItem -Path $sysvolPath -Recurse -File -ErrorAction Stop
+            $items = @(Get-ChildItem -Path $sysvolPath -Recurse -File -ErrorAction Stop)
             $fileCount = $items.Count
             $totalSizeKB = [math]::Round(($items | Measure-Object -Property Length -Sum).Sum / 1KB, 2)
             if ($items.Count -gt 0) {
