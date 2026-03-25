@@ -27,9 +27,72 @@ During an authoritative SYSVOL restore, the DFS-R service is stopped on all DCs,
 
 ### Step 1 — Identify the Authoritative DC
 
+> **Script:** [`Find-AuthoritativeDC.ps1`](../scripts/Find-AuthoritativeDC.ps1) — automates step 1 by inspecting all DCs and recommending the best candidate.
+
 - [ ] **1.1** Determine which Domain Controller has the correct/current SYSVOL content.
   - This will be the **authoritative source** (e.g., `DC01.contoso.com`).
+
+  **How to identify the correct DC:**
+
+  **a) Compare SYSVOL content across DCs**
+
+  List the policies and scripts in the SYSVOL share on each DC and compare file counts, sizes, and timestamps:
+  ```powershell
+  # Run on each DC or remotely against each DC's SYSVOL share
+  Get-ChildItem "\\DC01\SYSVOL\contoso.com\Policies" -Recurse | Measure-Object -Property Length -Sum
+  Get-ChildItem "\\DC02\SYSVOL\contoso.com\Policies" -Recurse | Measure-Object -Property Length -Sum
+  ```
+  The DC with the most complete and up-to-date set of Group Policy Objects (GPOs) and scripts is typically the best candidate.
+
+  **b) Check the PDC Emulator role holder**
+
+  The PDC Emulator is the default authoritative source for Group Policy editing and SYSVOL changes. Unless it was compromised or rebuilt, it usually holds the most current content:
+  ```powershell
+  Get-ADDomain | Select-Object -ExpandProperty PDCEmulator
+  ```
+
+  **c) Verify DFS-R replication health**
+
+  Check which DCs have a healthy DFS-R state and recent successful replication:
+  ```powershell
+  # List DFS-R backlog from each DC to the candidate authoritative DC
+  dfsrdiag backlog /sendingmember:DC02 /receivingmember:DC01 /rgname:"Domain System Volume" /rfname:"SYSVOL Share"
+  ```
+  ```powershell
+  # Check DFS-R service state on each DC
+  Get-Service DFSR -ComputerName DC01, DC02, DC03 | Select-Object MachineName, Status
+  ```
+
+  **d) Inspect last-modified timestamps on GPOs**
+
+  Compare the `gPCMachineExtensionNames` or `whenChanged` attributes, or simply check the file system timestamps of `GPT.INI` files across DCs:
+  ```powershell
+  # Compare GPT.INI timestamps across DCs
+  @('DC01','DC02','DC03') | ForEach-Object {
+      $path = "\\$_\SYSVOL\contoso.com\Policies\{GPO-GUID}\GPT.INI"
+      if (Test-Path $path) {
+          [PSCustomObject]@{
+              DC           = $_
+              LastWriteTime = (Get-Item $path).LastWriteTime
+          }
+      }
+  }
+  ```
+
+  **e) Review the DFS Replication event log**
+
+  On each DC, look for recent Event IDs **4602** (successful init), **4604** (initial replication completed), or errors like **4612** (SYSVOL not replicated):
+  ```powershell
+  Get-WinEvent -LogName "DFS Replication" -MaxEvents 20 |
+      Where-Object { $_.Id -in 4602, 4604, 4612, 4614 } |
+      Format-Table TimeCreated, Id, Message -Wrap
+  ```
+
+  > **Decision rule:** Choose the DC that (1) holds the PDC Emulator role **and** has complete, current SYSVOL content, **or** (2) if the PDC Emulator is unavailable/compromised, the DC with the most recent and complete policy files and a healthy DFS-R state.
+
 - [ ] **1.2** All other DCs will perform non-authoritative sync from this source.
+  - Document which DC is selected as authoritative and which DCs are non-authoritative before proceeding.
+  - Ensure the authoritative DC is reachable from all other DCs over the network.
 
 ---
 
