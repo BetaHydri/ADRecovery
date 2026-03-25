@@ -131,7 +131,7 @@ if ($IncludeSPNSearch) {
     $spnUsers = Get-ADUser -LDAPFilter '(servicePrincipalName=*)' @adParams -Properties `
         Name, SamAccountName, ServicePrincipalName, Description, `
         WhenCreated, PasswordLastSet, Enabled |
-        Where-Object { $_.SamAccountName -ne 'krbtgt' }
+    Where-Object { $_.SamAccountName -ne 'krbtgt' }
 
     if ($spnUsers) {
         Write-Host "  Found $($spnUsers.Count) user account(s) with SPNs:`n" -ForegroundColor Green
@@ -157,7 +157,7 @@ if ($IncludeSPNSearch) {
 Write-Host "--- Summary ---" -ForegroundColor Yellow
 
 $linuxCount = if ($linuxComputers) { $linuxComputers.Count } else { 0 }
-$spnCount   = if ($IncludeSPNSearch -and $spnUsers) { $spnUsers.Count } else { 0 }
+$spnCount = if ($IncludeSPNSearch -and $spnUsers) { $spnUsers.Count } else { 0 }
 
 Write-Host "  Linux/Unix computer accounts : $linuxCount"
 if ($IncludeSPNSearch) {
