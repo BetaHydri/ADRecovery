@@ -80,6 +80,16 @@ The target DC (e.g., `DC01`) is restored using Windows Server Backup. Backups ar
   ```cmd
   net user krbtgt <AnotherNewPassword> /domain
   ```
+
+> [!WARNING]
+> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory. After the reset:
+> - [ ] Identify all Linux/Unix hosts using Kerberos keytab files (e.g., `/etc/krb5.keytab`) for authentication.
+> - [ ] Regenerate keytabs on all affected Linux/Unix systems (e.g., via `ktpass`, `msktutil`, or `adcli`).
+> - [ ] Restart Kerberos-dependent services (e.g., `sshd`, Apache with `mod_auth_gssapi`, NFS, CIFS mounts, Hadoop, etc.).
+> - [ ] Verify Kerberos authentication with `kinit` and `klist` on affected hosts.
+>
+> Failure to update keytabs will cause **authentication failures** on all Linux/Unix systems relying on Kerberos tickets issued before the reset.
+
 - [ ] **3.3** If **gMSA (Group Managed Service Accounts)** are in use, plan to re-create them — an attacker with admin access may have retrieved the KDS root key, enabling a [Golden gMSA attack](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
 ---

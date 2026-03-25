@@ -74,6 +74,16 @@ The forest root DC (e.g., `DC-ROOT01.contoso.com`) is restored first.
   net user krbtgt <NewPassword> /domain
   ```
 - [ ] **2.3.2** Reset `krbtgt` password a **second time**.
+
+> [!WARNING]
+> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory. After the reset:
+> - [ ] Identify all Linux/Unix hosts using Kerberos keytab files (e.g., `/etc/krb5.keytab`) for authentication.
+> - [ ] Regenerate keytabs on all affected Linux/Unix systems (e.g., via `ktpass`, `msktutil`, or `adcli`).
+> - [ ] Restart Kerberos-dependent services (e.g., `sshd`, Apache with `mod_auth_gssapi`, NFS, CIFS mounts, Hadoop, etc.).
+> - [ ] Verify Kerberos authentication with `kinit` and `klist` on affected hosts.
+>
+> Failure to update keytabs will cause **authentication failures** on all Linux/Unix systems relying on Kerberos tickets issued before the reset.
+
 - [ ] **2.3.3** If **gMSA (Group Managed Service Accounts)** are in use, plan to re-create them — an attacker may have retrieved the KDS root key, enabling a [Golden gMSA attack](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
 ### Step 2.4 — Authoritative SYSVOL Restore (DFS-R)
@@ -234,6 +244,15 @@ The procedure below is for one child domain (e.g., `DC-CHILD01.corp.contoso.com`
   ```
 
 > **Why twice?** Active Directory keeps the current and previous krbtgt password hashes. Resetting twice ensures both hashes are replaced, fully invalidating any stolen tickets.
+
+> [!WARNING]
+> **Linux Kerberos Keytab Impact:** The double krbtgt password reset **invalidates all existing Kerberos keytabs** on Linux/Unix systems that authenticate against Active Directory. After the reset:
+> - [ ] Identify all Linux/Unix hosts using Kerberos keytab files (e.g., `/etc/krb5.keytab`) for authentication.
+> - [ ] Regenerate keytabs on all affected Linux/Unix systems (e.g., via `ktpass`, `msktutil`, or `adcli`).
+> - [ ] Restart Kerberos-dependent services (e.g., `sshd`, Apache with `mod_auth_gssapi`, NFS, CIFS mounts, Hadoop, etc.).
+> - [ ] Verify Kerberos authentication with `kinit` and `klist` on affected hosts.
+>
+> Failure to update keytabs will cause **authentication failures** on all Linux/Unix systems relying on Kerberos tickets issued before the reset.
 
 - [ ] **3.3.3** If **gMSA (Group Managed Service Accounts)** are in use in this child domain, plan to re-create them — see [Golden gMSA attack recovery](https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/recover-from-golden-gmsa-attack).
 
