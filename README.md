@@ -1,7 +1,7 @@
 # Active Directory Recovery Documentation
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Author](https://img.shields.io/badge/author-Jan%20Tiedemann%20(Microsoft)-green)
+![Author](https://img.shields.io/badge/author-Jan%20Tiedemann-green)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 ![Windows Server](https://img.shields.io/badge/Windows%20Server-2016%20|%202019%20|%202022%20|%202025-0078D4)
 
@@ -91,6 +91,7 @@ All scripts that modify Active Directory support PowerShell's built-in **`-WhatI
 | Script | Description | Used In |
 |---|---|---|
 | [Reset-KrbtgtPassword.ps1](scripts/Reset-KrbtgtPassword.ps1) | Resets the krbtgt account password twice to invalidate all Kerberos tickets | Domain Recovery Step 3, Forest Recovery Step 2.3 / 3.3 |
+| [Find-AuthoritativeDC.ps1](scripts/Find-AuthoritativeDC.ps1) | Inspects all DCs and recommends the best authoritative SYSVOL source | SYSVOL Recovery Step 1 |
 | [Set-AuthoritativeSYSVOLRestore.ps1](scripts/Set-AuthoritativeSYSVOLRestore.ps1) | Marks a DC as the authoritative SYSVOL source for DFS-R | Domain Recovery Step 4, Forest Recovery Step 2.4 / 3.4, SYSVOL Recovery Step 2 |
 | [Set-NonAuthoritativeSYSVOL.ps1](scripts/Set-NonAuthoritativeSYSVOL.ps1) | Disables/re-enables DFS-R on all non-authoritative DCs | SYSVOL Recovery Steps 3, 5, 7, 9 |
 | [Remove-StaleDCMetadata.ps1](scripts/Remove-StaleDCMetadata.ps1) | Removes stale DC metadata, DNS records, and seizes FSMO roles | Domain Recovery Step 5, Forest Recovery Step 2.5 / 3.5 |
