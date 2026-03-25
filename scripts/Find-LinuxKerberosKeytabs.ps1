@@ -99,8 +99,8 @@ $osFilters = @(
 $ldapFilter = "(|$($osFilters -join ''))"
 
 $linuxComputers = @(Get-ADComputer -LDAPFilter $ldapFilter @adParams -Properties `
-    Name, DNSHostName, OperatingSystem, OperatingSystemVersion, `
-    ServicePrincipalName, Description, WhenCreated, PasswordLastSet)
+        Name, DNSHostName, OperatingSystem, OperatingSystemVersion, `
+        ServicePrincipalName, Description, WhenCreated, PasswordLastSet)
 
 if ($linuxComputers) {
     Write-Host "  Found $($linuxComputers.Count) Linux/Unix computer account(s):`n" -ForegroundColor Green
@@ -129,9 +129,9 @@ if ($IncludeSPNSearch) {
     Write-Host "  (These may be Linux/Unix service accounts using keytabs)`n"
 
     $spnUsers = @(Get-ADUser -LDAPFilter '(servicePrincipalName=*)' @adParams -Properties `
-        Name, SamAccountName, ServicePrincipalName, Description, `
-        WhenCreated, PasswordLastSet, Enabled |
-    Where-Object { $_.SamAccountName -ne 'krbtgt' })
+            Name, SamAccountName, ServicePrincipalName, Description, `
+            WhenCreated, PasswordLastSet, Enabled |
+        Where-Object { $_.SamAccountName -ne 'krbtgt' })
 
     if ($spnUsers) {
         Write-Host "  Found $($spnUsers.Count) user account(s) with SPNs:`n" -ForegroundColor Green
